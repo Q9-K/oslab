@@ -20,6 +20,6 @@ case_div: casegen.c
 	gcc casegem.c -o case_div
 
 case_all: casegen.c
-	./cat case_add case_sub case_mul case_div >> case_all
+	cat case_add case_sub case_mul case_div >> case_all
 clean:
 	rm -f out calc casegen case_*

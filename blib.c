@@ -51,11 +51,10 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 }
 
 void *memset(void *s, int c, size_t n) {
-	void *t=s;
 	for(int i=0;i<n;++i){
-		*((int*)(t++))=c;
+		((int *)s)[i]=c;
 	}
-	return;
+	return s;
 }
 
 void *memcpy(void *out, const void *in, size_t n) {

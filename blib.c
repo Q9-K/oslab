@@ -1,9 +1,13 @@
 #include <blib.h>
 
 size_t strlen(const char *s) {
-	int length = 0;
-	for(;s[length];) length++;
-	return length;
+	char *str = s;
+	size_t lens = 0;
+	while(*str){
+		lens++;
+		str++;
+	}
+	return lens;
 }
 
 char *strcpy(char *dst, const char *src) {
@@ -23,15 +27,16 @@ char *strncpy(char *dst, const char *src, size_t n) {
 char *strcat(char *dst, const char *src) {
 	int i=0;
 	while(dst[i]) i++;
-	for(int j=0;src[j];j++) dst[i]=src[j];
+	for(int j=0;src[j];j++) dst[i++]=src[j];
 	return dst;
 }
 
 int strcmp(const char *s1, const char *s2) {
 	int i=0;
-	while(1){
+	while(s1[i]||s2[i]){
 		if(s1[i]>s2[i]) return 1;
 		else if(s1[i]<s2[i]) return -1;
+		i++;
 	}
 	return 0;
 }
@@ -51,10 +56,9 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 }
 
 void *memset(void *s, int c, size_t n) {
-	for(int i=0;i<n;++i){
-		((int *)s)[i]=c;
-	}
-	return s;
+	char *str = (char *)s;
+	for(int i=0;i<n;++i) str[i]=c;
+	return (void *)str;
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
@@ -67,11 +71,11 @@ void *memcpy(void *out, const void *in, size_t n) {
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
-	char *t1=(char *)s1;
-	char *t2=(char *)s2;
-	for(int i=0;i<n;++i){
-		if(t1[i]<t2[i]) return -1;
-		else if(t1[i]>t2[i]) return 1;
+	char *str1 = (char *)s1;
+	char *str2 = (char *)s2;
+	for(int i=0;i<n;++i,str1++,str2++){
+		if(*str1>*str2) return 1;
+		else if(*str1<*str2) return -1;
 	}
 	return 0;
 }

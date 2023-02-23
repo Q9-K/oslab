@@ -40,6 +40,7 @@ int main() {
 	panic_on((strcmp("aa", s[1]) >= 0), "check failed at");
 	panic_on((strcmp(s[1], "aa") <= 0), "check failed at");
 
+
 	char *tmp = strncpy(str, str1, 3);
 	panic_on((strncmp(tmp, str1, 3) != 0), "check failed at");
 	tmp = strcpy(str, str1);
@@ -52,8 +53,8 @@ int main() {
 	panic_on((memcmp(s[1], s[0], n) <= 0), "check failed at");
 
 	void *mem = memset(str, '#', 5);
-	panic_on((memcmp(mem, s[5], 5) != 0), "check failed at");
-	putstr("string test pass!\n");
+	panic_on((memcmp(mem, "#####", 5) != 0), "check failed at");
 
+	putstr("string test pass!\n");
 	return 0;
 }

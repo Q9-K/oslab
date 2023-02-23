@@ -1,11 +1,14 @@
 #include <blib.h>
 
 size_t strlen(const char *s) {
-	panic("please implement");
+	int length = 0;
+	for(;s[length];) length++;
+	return length;
 }
 
 char *strcpy(char *dst, const char *src) {
-	panic("please implement");
+	for(int i=0;src[i];++i) dst[i]=src[i];
+	return dst;
 }
 
 char *strncpy(char *dst, const char *src, size_t n) {
@@ -18,11 +21,19 @@ char *strncpy(char *dst, const char *src, size_t n) {
 }
 
 char *strcat(char *dst, const char *src) {
-	panic("please implement");
+	int i=0;
+	while(dst[i]) i++;
+	for(int j=0;src[j];j++) dst[i]=src[j];
+	return dst;
 }
 
 int strcmp(const char *s1, const char *s2) {
-	panic("please implement");
+	int i=0;
+	while(1){
+		if(s1[i]>s2[i]) return 1;
+		else if(s1[i]<s2[i]) return -1;
+	}
+	return 0;
 }
 
 int strncmp(const char *s1, const char *s2, size_t n) {
@@ -40,7 +51,11 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 }
 
 void *memset(void *s, int c, size_t n) {
-	panic("please implement");
+	void *t=s;
+	for(int i=0;i<n;++i){
+		*((int*)(t++))=c;
+	}
+	return;
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
@@ -53,5 +68,11 @@ void *memcpy(void *out, const void *in, size_t n) {
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
-	panic("please implement");
+	char *t1=(char *)s1;
+	char *t2=(char *)s2;
+	for(int i=0;i<n;++i){
+		if(t1[i]<t2[i]) return -1;
+		else if(t1[i]>t2[i]) return 1;
+	}
+	return 0;
 }

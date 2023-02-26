@@ -1,16 +1,16 @@
-INCLUDES := -I./ -I../ -I../include/
+INCLUDES    := -I../include/
+
+targets     := elfloader.o print.o string.o
+
 %.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 %.o: %.S
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
-.PHONY: clean
+.PHONY: all clean
 
-all: print.o printf.o 
+all: $(targets)
 
 clean:
 	rm -rf *~ *.o
-
-
-include ../include.mk

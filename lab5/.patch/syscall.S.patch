@@ -1,2 +1,0 @@
-     .word sys_write_dev
-     .word sys_read_dev

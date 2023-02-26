@@ -1,292 +1,247 @@
-/*
- * Copyright (C) 2001 MontaVista Software Inc.
- * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
- *
- * This program is free software; you can redistribute  it and/or modify it
- * under  the terms of  the GNU General  Public License as published by the
- * Free Software Foundation;  either version 2 of the  License, or (at your
- * option) any later version.
- *
- */
-
-#include	<print.h>
-
-/* macros */
-#define		IsDigit(x)	( ((x) >= '0') && ((x) <= '9') )
-#define		Ctod(x)		( (x) - '0')
+#include <print.h>
 
 /* forward declaration */
-extern int PrintChar(char *, char, int, int);
-extern int PrintString(char *, char *, int, int);
-extern int PrintNum(char *, unsigned long, int, int, int, int, char, int);
+static void print_char(fmt_callback_t, void *, char, int, int);
+static void print_str(fmt_callback_t, void *, const char *, int, int);
+static void print_num(fmt_callback_t, void *, unsigned long, int, int, int, int, char, int);
 
-/* private variable */
-static const char theFatalMsg[] = "fatal error in lp_Print!";
+void vprintfmt(fmt_callback_t out, void *data, const char *fmt, va_list ap) {
+	char c;
+	const char *s;
+	long num;
 
-/* -*-
- * A low level printf() function.
- */
-void
-lp_Print(void (*output)(void *, char *, int), 
-	 void * arg,
-	 char *fmt, 
-	 va_list ap)
-{
+	int width;
+	int long_flag; // output is long (rather than int)
+	int neg_flag;  // output is negative
+	int ladjust;   // output is left-aligned
+	char padc;     // padding char
 
-#define 	OUTPUT(arg, s, l)  \
-  { if (((l) < 0) || ((l) > LP_MAX_BUF)) { \
-       (*output)(arg, (char*)theFatalMsg, sizeof(theFatalMsg)-1); for(;;); \
-    } else { \
-      (*output)(arg, s, l); \
-    } \
-  }
-    
-    char buf[LP_MAX_BUF];
+	for (;;) {
+		/* scan for the next '%' */
+		/* Exercise 1.4: Your code here. (1/8) */
 
-    char c;
-    char *s;
-    long int num;
+		/* flush the string found so far */
+		/* Exercise 1.4: Your code here. (2/8) */
 
-	
+		/* check "are we hitting the end?" */
+		/* Exercise 1.4: Your code here. (3/8) */
 
-    int longFlag;
-    int negFlag;
-    int width;
-    int prec;
-    int ladjust;
-    char padc;
+		/* we found a '%' */
+		/* Exercise 1.4: Your code here. (4/8) */
 
-    int length;
+		/* check format flag */
+		/* Exercise 1.4: Your code here. (5/8) */
 
-    /*
-        Exercise 1.5. Please fill in two parts in this file.
-    */
+		/* get width */
+		/* Exercise 1.4: Your code here. (6/8) */
 
-    for(;;) {
+		/* check for long */
+		/* Exercise 1.4: Your code here. (7/8) */
 
-        /* Part1: your code here */
+		neg_flag = 0;
+		switch (*fmt) {
+		case 'b':
+			if (long_flag) {
+				num = va_arg(ap, long int);
+			} else {
+				num = va_arg(ap, int);
+			}
+			print_num(out, data, num, 2, 0, width, ladjust, padc, 0);
+			break;
 
-	{ 
-	    /* scan for the next '%' */
-	    /* flush the string found so far */
+		case 'd':
+		case 'D':
+			if (long_flag) {
+				num = va_arg(ap, long int);
+			} else {
+				num = va_arg(ap, int);
+			}
 
-	    /* check "are we hitting the end?" */
+			/*
+			 * Refer to other parts (case 'b', case 'o', etc.) and func 'print_num' to
+			 * complete this part. Think the differences between case 'd' and the
+			 * others. (hint: 'neg_flag').
+			 */
+			/* Exercise 1.4: Your code here. (8/8) */
+
+			break;
+
+		case 'o':
+		case 'O':
+			if (long_flag) {
+				num = va_arg(ap, long int);
+			} else {
+				num = va_arg(ap, int);
+			}
+			print_num(out, data, num, 8, 0, width, ladjust, padc, 0);
+			break;
+
+		case 'u':
+		case 'U':
+			if (long_flag) {
+				num = va_arg(ap, long int);
+			} else {
+				num = va_arg(ap, int);
+			}
+			print_num(out, data, num, 10, 0, width, ladjust, padc, 0);
+			break;
+
+		case 'x':
+			if (long_flag) {
+				num = va_arg(ap, long int);
+			} else {
+				num = va_arg(ap, int);
+			}
+			print_num(out, data, num, 16, 0, width, ladjust, padc, 0);
+			break;
+
+		case 'X':
+			if (long_flag) {
+				num = va_arg(ap, long int);
+			} else {
+				num = va_arg(ap, int);
+			}
+			print_num(out, data, num, 16, 0, width, ladjust, padc, 1);
+			break;
+
+		case 'c':
+			c = (char)va_arg(ap, int);
+			print_char(out, data, c, width, ladjust);
+			break;
+
+		case 's':
+			s = (char *)va_arg(ap, char *);
+			print_str(out, data, s, width, ladjust);
+			break;
+
+		case '\0':
+			fmt--;
+			break;
+
+		default:
+			/* output this char as it is */
+			out(data, fmt, 1);
+		}
+		fmt++;
 	}
-
-	
-	/* we found a '%' */
-	
-	/* check for long */
-
-	/* check for other prefixes */
-
-	/* check format flag */
-	
-
-	negFlag = 0;
-	switch (*fmt) {
-	 case 'b':
-	    if (longFlag) { 
-		num = va_arg(ap, long int); 
-	    } else { 
-		num = va_arg(ap, int);
-	    }
-	    length = PrintNum(buf, num, 2, 0, width, ladjust, padc, 0);
-	    OUTPUT(arg, buf, length);
-	    break;
-
-	 case 'd':
-	 case 'D':
-	    if (longFlag) { 
-		num = va_arg(ap, long int);
-	    } else { 
-		num = va_arg(ap, int); 
-	    }
-	    
-		/*  Part2:
-			your code here.
-			Refer to other part (case 'b',case 'o' etc.) and func PrintNum to complete this part.
-			Think the difference between case 'd' and others. (hint: negFlag).
-		*/
-	    
-		break;
-
-	 case 'o':
-	 case 'O':
-	    if (longFlag) { 
-		num = va_arg(ap, long int);
-	    } else { 
-		num = va_arg(ap, int); 
-	    }
-	    length = PrintNum(buf, num, 8, 0, width, ladjust, padc, 0);
-	    OUTPUT(arg, buf, length);
-	    break;
-
-	 case 'u':
-	 case 'U':
-	    if (longFlag) { 
-		num = va_arg(ap, long int);
-	    } else { 
-		num = va_arg(ap, int); 
-	    }
-	    length = PrintNum(buf, num, 10, 0, width, ladjust, padc, 0);
-	    OUTPUT(arg, buf, length);
-	    break;
-	    
-	 case 'x':
-	    if (longFlag) { 
-		num = va_arg(ap, long int);
-	    } else { 
-		num = va_arg(ap, int); 
-	    }
-	    length = PrintNum(buf, num, 16, 0, width, ladjust, padc, 0);
-	    OUTPUT(arg, buf, length);
-	    break;
-
-	 case 'X':
-	    if (longFlag) { 
-		num = va_arg(ap, long int);
-	    } else { 
-		num = va_arg(ap, int); 
-	    }
-	    length = PrintNum(buf, num, 16, 0, width, ladjust, padc, 1);
-	    OUTPUT(arg, buf, length);
-	    break;
-
-	 case 'c':
-	    c = (char)va_arg(ap, int);
-	    length = PrintChar(buf, c, width, ladjust);
-	    OUTPUT(arg, buf, length);
-	    break;
-
-	 case 's':
-	    s = (char*)va_arg(ap, char *);
-	    length = PrintString(buf, s, width, ladjust);
-	    OUTPUT(arg, buf, length);
-	    break;
-
-	 case '\0':
-	    fmt --;
-	    break;
-
-	 default:
-	    /* output this char as it is */
-	    OUTPUT(arg, fmt, 1);
-	}	/* switch (*fmt) */
-
-	fmt ++;
-    }		/* for(;;) */
-
-    /* special termination call */
-    OUTPUT(arg, "\0", 1);
 }
-
 
 /* --------------- local help functions --------------------- */
-int
-PrintChar(char * buf, char c, int length, int ladjust)
-{
-    int i;
-    
-    if (length < 1) length = 1;
-    if (ladjust) {
-	*buf = c;
-	for (i=1; i< length; i++) buf[i] = ' ';
-    } else {
-	for (i=0; i< length-1; i++) buf[i] = ' ';
-	buf[length - 1] = c;
-    }
-    return length;
-}
+void print_char(fmt_callback_t out, void *data, char c, int length, int ladjust) {
+	int i;
 
-int
-PrintString(char * buf, char* s, int length, int ladjust)
-{
-    int i;
-    int len=0;
-    char* s1 = s;
-    while (*s1++) len++;
-    if (length < len) length = len;
-
-    if (ladjust) {
-	for (i=0; i< len; i++) buf[i] = s[i];
-	for (i=len; i< length; i++) buf[i] = ' ';
-    } else {
-	for (i=0; i< length-len; i++) buf[i] = ' ';
-	for (i=length-len; i < length; i++) buf[i] = s[i-length+len];
-    }
-    return length;
-}
-
-int
-PrintNum(char * buf, unsigned long u, int base, int negFlag, 
-	 int length, int ladjust, char padc, int upcase)
-{
-    /* algorithm :
-     *  1. prints the number from left to right in reverse form.
-     *  2. fill the remaining spaces with padc if length is longer than
-     *     the actual length
-     *     TRICKY : if left adjusted, no "0" padding.
-     *		    if negtive, insert  "0" padding between "0" and number.
-     *  3. if (!ladjust) we reverse the whole string including paddings
-     *  4. otherwise we only reverse the actual string representing the num.
-     */
-
-    int actualLength =0;
-    char *p = buf;
-    int i;
-
-    do {
-	int tmp = u %base;
-	if (tmp <= 9) {
-	    *p++ = '0' + tmp;
-	} else if (upcase) {
-	    *p++ = 'A' + tmp - 10;
-	} else {
-	    *p++ = 'a' + tmp - 10;
+	if (length < 1) {
+		length = 1;
 	}
-	u /= base;
-    } while (u != 0);
+	const char space = ' ';
+	if (ladjust) {
+		out(data, &c, 1);
+		for (i = 1; i < length; i++) {
+			out(data, &space, 1);
+		}
+	} else {
+		for (i = 0; i < length - 1; i++) {
+			out(data, &space, 1);
+		}
+		out(data, &c, 1);
+	}
+}
 
-    if (negFlag) {
-	*p++ = '-';
-    }
+void print_str(fmt_callback_t out, void *data, const char *s, int length, int ladjust) {
+	int i;
+	int len = 0;
+	const char *s1 = s;
+	while (*s1++) {
+		len++;
+	}
+	if (length < len) {
+		length = len;
+	}
 
-    /* figure out actual length and adjust the maximum length */
-    actualLength = p - buf;
-    if (length < actualLength) length = actualLength;
+	if (ladjust) {
+		out(data, s, len);
+		for (i = len; i < length; i++) {
+			out(data, " ", 1);
+		}
+	} else {
+		for (i = 0; i < length - len; i++) {
+			out(data, " ", 1);
+		}
+		out(data, s, len);
+	}
+}
 
-    /* add padding */
-    if (ladjust) {
-	padc = ' ';
-    }
-    if (negFlag && !ladjust && (padc == '0')) {
-	for (i = actualLength-1; i< length-1; i++) buf[i] = padc;
-	buf[length -1] = '-';
-    } else {
-	for (i = actualLength; i< length; i++) buf[i] = padc;
-    }
-	    
+void print_num(fmt_callback_t out, void *data, unsigned long u, int base, int neg_flag, int length,
+	       int ladjust, char padc, int upcase) {
+	/* algorithm :
+	 *  1. prints the number from left to right in reverse form.
+	 *  2. fill the remaining spaces with padc if length is longer than
+	 *     the actual length
+	 *     TRICKY : if left adjusted, no "0" padding.
+	 *		    if negtive, insert  "0" padding between "0" and number.
+	 *  3. if (!ladjust) we reverse the whole string including paddings
+	 *  4. otherwise we only reverse the actual string representing the num.
+	 */
 
-    /* prepare to reverse the string */
-    {
+	int actualLength = 0;
+	char buf[length + 70];
+	char *p = buf;
+	int i;
+
+	do {
+		int tmp = u % base;
+		if (tmp <= 9) {
+			*p++ = '0' + tmp;
+		} else if (upcase) {
+			*p++ = 'A' + tmp - 10;
+		} else {
+			*p++ = 'a' + tmp - 10;
+		}
+		u /= base;
+	} while (u != 0);
+
+	if (neg_flag) {
+		*p++ = '-';
+	}
+
+	/* figure out actual length and adjust the maximum length */
+	actualLength = p - buf;
+	if (length < actualLength) {
+		length = actualLength;
+	}
+
+	/* add padding */
+	if (ladjust) {
+		padc = ' ';
+	}
+	if (neg_flag && !ladjust && (padc == '0')) {
+		for (i = actualLength - 1; i < length - 1; i++) {
+			buf[i] = padc;
+		}
+		buf[length - 1] = '-';
+	} else {
+		for (i = actualLength; i < length; i++) {
+			buf[i] = padc;
+		}
+	}
+
+	/* prepare to reverse the string */
 	int begin = 0;
 	int end;
 	if (ladjust) {
-	    end = actualLength - 1;
+		end = actualLength - 1;
 	} else {
-	    end = length -1;
+		end = length - 1;
 	}
 
+	/* adjust the string pointer */
 	while (end > begin) {
-	    char tmp = buf[begin];
-	    buf[begin] = buf[end];
-	    buf[end] = tmp;
-	    begin ++;
-	    end --;
+		char tmp = buf[begin];
+		buf[begin] = buf[end];
+		buf[end] = tmp;
+		begin++;
+		end--;
 	}
-    }
 
-    /* adjust the string pointer */
-    return length;
+	out(data, buf, length);
 }

@@ -1,8 +1,6 @@
-#include "lib.h"
+#include <lib.h>
 
-
-void umain()
-{
+int main() {
 	int a = 0;
 	int id = 0;
 
@@ -11,20 +9,21 @@ void umain()
 			a += 3;
 
 			for (;;) {
-				writef("\t\tthis is child2 :a:%d\n", a);
+				debugf("\t\tthis is child2 :a:%d\n", a);
 			}
 		}
 
 		a += 2;
 
 		for (;;) {
-			writef("\tthis is child :a:%d\n", a);
+			debugf("\tthis is child :a:%d\n", a);
 		}
 	}
 
 	a++;
 
 	for (;;) {
-		writef("this is father: a:%d\n", a);
+		debugf("this is father: a:%d\n", a);
 	}
+	return 0;
 }

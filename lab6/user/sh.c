@@ -1,5 +1,5 @@
-#include "lib.h"
 #include <args.h>
+#include <lib.h>
 
 int debug_ = 0;
 
@@ -18,51 +18,43 @@ int debug_ = 0;
 #define WHITESPACE " \t\r\n"
 #define SYMBOLS "<|>&;()"
 
-int
-_gettoken(char *s, char **p1, char **p2)
-{
+int _gettoken(char *s, char **p1, char **p2) {
 	int t;
 
 	if (s == 0) {
-		//if (debug_ > 1) writef("GETTOKEN NULL\n");
 		return 0;
 	}
-
-	//if (debug_ > 1) writef("GETTOKEN: %s\n", s);
 
 	*p1 = 0;
 	*p2 = 0;
 
-	while(strchr(WHITESPACE, *s))
+	while (strchr(WHITESPACE, *s)) {
 		*s++ = 0;
-	if(*s == 0) {
-	//	if (debug_ > 1) writef("EOL\n");
+	}
+	if (*s == 0) {
 		return 0;
 	}
-	if(strchr(SYMBOLS, *s)){
+	if (strchr(SYMBOLS, *s)) {
 		t = *s;
 		*p1 = s;
 		*s++ = 0;
 		*p2 = s;
-//		if (debug_ > 1) writef("TOK %c\n", t);
 		return t;
 	}
 	*p1 = s;
-	while(*s && !strchr(WHITESPACE SYMBOLS, *s))
+	while (*s && !strchr(WHITESPACE SYMBOLS, *s)) {
 		s++;
+	}
 	*p2 = s;
 	if (debug_ > 1) {
 		t = **p2;
 		**p2 = 0;
-//		writef("WORD: %s\n", *p1);
 		**p2 = t;
 	}
 	return 'w';
 }
 
-int
-gettoken(char *s, char **p1)
-{
+int gettoken(char *s, char **p1) {
 	static int c, nc;
 	static char *np1, *np2;
 
@@ -76,142 +68,145 @@ gettoken(char *s, char **p1)
 	return c;
 }
 
-#define MAXARGS 16
-void
-runcmd(char *s)
-{
-	char *argv[MAXARGS], *t;
-	int argc, c, i, r, p[2], fd, rightpipe;
-	int fdnum;
-	rightpipe = 0;
-	gettoken(s, 0);
-again:
-	argc = 0;
-	for(;;){
-		c = gettoken(0, &t);
-		switch(c){
+#define MAXARGS 128
+
+int parsecmd(char **argv, int *rightpipe) {
+	int argc = 0;
+	while (1) {
+		char *t;
+		int fd, r;
+		int c = gettoken(0, &t);
+		switch (c) {
 		case 0:
-			goto runit;
+			return argc;
 		case 'w':
-			if(argc == MAXARGS){
-				writef("too many arguments\n");
+			if (argc >= MAXARGS) {
+				debugf("too many arguments\n");
 				exit();
 			}
 			argv[argc++] = t;
 			break;
 		case '<':
-			if(gettoken(0, &t) != 'w'){
-				writef("syntax error: < not followed by word\n");
+			if (gettoken(0, &t) != 'w') {
+				debugf("syntax error: < not followed by word\n");
 				exit();
 			}
-			// Your code here -- open t for reading,
-			// dup it onto fd 0, and then close the fd you got.
+			// Open 't' for reading, dup it onto fd 0, and then close the fd you got.
+			/* Exercise 6.5: Your code here. (1/3) */
+
 			user_panic("< redirection not implemented");
+
 			break;
 		case '>':
-			// Your code here -- open t for writing,
-			// dup it onto fd 1, and then close the fd you got.
+			if (gettoken(0, &t) != 'w') {
+				debugf("syntax error: > not followed by word\n");
+				exit();
+			}
+			// Open 't' for writing, dup it onto fd 1, and then close the fd you got.
+			/* Exercise 6.5: Your code here. (2/3) */
+
 			user_panic("> redirection not implemented");
+
 			break;
-		case '|':
-			// Your code here.
-			// 	First, allocate a pipe.
-			//	Then fork.
-			//	the child runs the right side of the pipe:
-			//		dup the read end of the pipe onto 0
-			//		close the read end of the pipe
-			//		close the write end of the pipe
-			//		goto again, to parse the rest of the command line
-			//	the parent runs the left side of the pipe:
-			//		dup the write end of the pipe onto 1
-			//		close the write end of the pipe
-			//		close the read end of the pipe
-			//		set "rightpipe" to the child envid
-			//		goto runit, to execute this piece of the pipeline
-			//			and then wait for the right side to finish
+		case '|':;
+			/*
+			 * First, allocate a pipe.
+			 * Then fork, set '*rightpipe' to the returned child envid or zero.
+			 * The child runs the right side of the pipe:
+			 * - dup the read end of the pipe onto 0
+			 * - close the read end of the pipe
+			 * - close the write end of the pipe
+			 * - and 'return parsecmd(argv, rightpipe)' again, to parse the rest of the
+			 *   command line.
+			 * The parent runs the left side of the pipe:
+			 * - dup the write end of the pipe onto 1
+			 * - close the write end of the pipe
+			 * - close the read end of the pipe
+			 * - and 'return argc', to execute the left of the pipeline.
+			 */
+			int p[2];
+			/* Exercise 6.5: Your code here. (3/3) */
+
 			user_panic("| not implemented");
+
 			break;
 		}
 	}
 
-runit:
-	if(argc == 0) {
-		if (debug_) writef("EMPTY COMMAND\n");
+	return argc;
+}
+
+void runcmd(char *s) {
+	gettoken(s, 0);
+
+	char *argv[MAXARGS];
+	int rightpipe = 0;
+	int argc = parsecmd(argv, &rightpipe);
+	if (argc == 0) {
 		return;
 	}
 	argv[argc] = 0;
-	if (1) {
-		writef("[%08x] SPAWN:", env->env_id);
-		for (i=0; argv[i]; i++)
-			writef(" %s", argv[i]);
-		writef("\n");
-	}
 
-	if ((r = spawn(argv[0], argv)) < 0)
-		writef("spawn %s: %e\n", argv[0], r);
+	int child = spawn(argv[0], argv);
 	close_all();
-	if (r >= 0) {
-		if (debug_) writef("[%08x] WAIT %s %08x\n", env->env_id, argv[0], r);
-		wait(r);
+	if (child >= 0) {
+		wait(child);
+	} else {
+		debugf("spawn %s: %d\n", argv[0], child);
 	}
 	if (rightpipe) {
-		if (debug_) writef("[%08x] WAIT right-pipe %08x\n", env->env_id, rightpipe);
 		wait(rightpipe);
 	}
-
 	exit();
 }
 
-void
-readline(char *buf, u_int n)
-{
+void readline(char *buf, u_int n) {
 	int i, r;
 
 	r = 0;
-	for(i=0; i<n; i++){
-		if((r = read(0, buf+i, 1)) != 1){
-			if(r < 0)
-				writef("read error: %e", r);
+	for (i = 0; i < n; i++) {
+		if ((r = read(0, buf + i, 1)) != 1) {
+			if (r < 0) {
+				debugf("read error: %d\n", r);
+			}
 			exit();
 		}
-		if(buf[i] == '\b'){
-			if(i > 0)
+		if (buf[i] == '\b') {
+			if (i > 0) {
 				i -= 2;
-			else
+			} else {
 				i = 0;
+			}
 		}
-		if(buf[i] == '\r' || buf[i] == '\n'){
+		if (buf[i] == '\r' || buf[i] == '\n') {
 			buf[i] = 0;
 			return;
 		}
 	}
-	writef("line too long\n");
-	while((r = read(0, buf, 1)) == 1 && buf[0] != '\n')
+	debugf("line too long\n");
+	while ((r = read(0, buf, 1)) == 1 && buf[0] != '\n') {
 		;
+	}
 	buf[0] = 0;
-}	
+}
 
 char buf[1024];
 
-void
-usage(void)
-{
-	writef("usage: sh [-dix] [command-file]\n");
+void usage(void) {
+	debugf("usage: sh [-dix] [command-file]\n");
 	exit();
 }
 
-void
-umain(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int r, interactive, echocmds;
 	interactive = '?';
 	echocmds = 0;
-	writef("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
-	writef("::                                                         ::\n");
-	writef("::              Super Shell  V0.0.0_1                      ::\n");
-	writef("::                                                         ::\n");
-	writef(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
-	ARGBEGIN{
+	debugf("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
+	debugf("::                                                         ::\n");
+	debugf("::                     MOS Shell 2022                      ::\n");
+	debugf("::                                                         ::\n");
+	debugf(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
+	ARGBEGIN {
 	case 'd':
 		debug_++;
 		break;
@@ -223,35 +218,43 @@ umain(int argc, char **argv)
 		break;
 	default:
 		usage();
-	}ARGEND
-
-	if(argc > 1)
-		usage();
-	if(argc == 1){
-		close(0);
-		if ((r = open(argv[1], O_RDONLY)) < 0)
-			user_panic("open %s: %e", r);
-		user_assert(r==0);
 	}
-	if(interactive == '?')
+	ARGEND
+
+	if (argc > 1) {
+		usage();
+	}
+	if (argc == 1) {
+		close(0);
+		if ((r = open(argv[1], O_RDONLY)) < 0) {
+			user_panic("open %s: %e", r);
+		}
+		user_assert(r == 0);
+	}
+	if (interactive == '?') {
 		interactive = iscons(0);
-	for(;;){
-		if (interactive)
-			fwritef(1, "\n$ ");
+	}
+	for (;;) {
+		if (interactive) {
+			printf("\n$ ");
+		}
 		readline(buf, sizeof buf);
-		
-		if (buf[0] == '#')
+
+		if (buf[0] == '#') {
 			continue;
-		if (echocmds)
-			fwritef(1, "# %s\n", buf);
-		if ((r = fork()) < 0)
+		}
+		if (echocmds) {
+			printf("# %s\n", buf);
+		}
+		if ((r = fork()) < 0) {
 			user_panic("fork: %e", r);
+		}
 		if (r == 0) {
 			runcmd(buf);
 			exit();
-			return;
-		} else
+		} else {
 			wait(r);
+		}
 	}
+	return 0;
 }
-

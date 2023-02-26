@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 1994, 1995, 1996, 1997, 2000, 2001 by Ralf Baechle
- *
- * Copyright (C) 2001, Monta Vista Software
- * Author: jsun@mvista.com or jsun@junsun.net
- */
 #ifndef _cp0regdef_h_
 #define _cp0regdef_h_
 
@@ -36,8 +30,10 @@
 #define CP0_TAGHI $29
 #define CP0_ERROREPC $30
 
-
-#define STATUSF_IP4 0x1000
 #define STATUS_CU0 0x10000000
-#define	STATUS_KUC 0x2
+#define STATUS_IM4 0x1000
+#define STATUS_KUp 0x8
+#define STATUS_IEp 0x4
+#define STATUS_KUc 0x2
+#define STATUS_IEc 0x1
 #endif

@@ -1,8 +1,8 @@
-#include "lib.h"
+#include <lib.h>
 
-void umain()
-{
+int main() {
 	while (1) {
-		writef("IDLE!");
+		debugf("IDLE!");
 	}
+	return 0;
 }

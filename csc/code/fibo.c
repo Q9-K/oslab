@@ -1,4 +1,4 @@
-#include "fibo.h"
+#include <fibo.h>
 int fibo(int n) {
 	int a;
 	int b;

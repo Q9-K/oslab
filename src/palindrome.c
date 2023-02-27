@@ -9,7 +9,7 @@ int main() {
 		n/=10;
 	}
 	int flag=1;
-	for(int i=0;i<j;i++){
+	for(int i=0;i<j;i++,j--){
 		if(a[i]!=a[j-1]){
 			flag=0;
 			break;

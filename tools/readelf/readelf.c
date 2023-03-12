@@ -28,7 +28,6 @@ int is_elf_format(const void *binary, size_t size) {
  */
 
 int readelf(const void *binary, size_t size) {
-	Elf32_Ehd
 	Elf32_Ehdr *ehdr = (Elf32_Ehdr *)binary;
 	// Check whether `binary` is a ELF file.
 	if (!is_elf_format(binary, size)) {

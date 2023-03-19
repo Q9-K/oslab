@@ -121,7 +121,7 @@ extern u_long npage;
 
 typedef u_long Pde;
 typedef u_long Pte;
-
+//only for kseg0 address translation PADDR and KADDR
 #define PADDR(kva)                                                                                 \
 	({                                                                                         \
 		u_long a = (u_long)(kva);                                                          \

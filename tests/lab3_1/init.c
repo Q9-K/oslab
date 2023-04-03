@@ -5,6 +5,7 @@ void mips_init() {
 	page_init();
 
 	env_init();
+
 	env_check();
 	halt();
 }

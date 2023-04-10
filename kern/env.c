@@ -373,6 +373,7 @@ struct Env *env_create(const void *binary, size_t size, int priority) {
    * into 'env_sched_list' using 'TAILQ_INSERT_HEAD'. */
   /* Exercise 3.7: Your code here. (3/3) */
   load_icode(e,binary,size);
+  TAILQ_INSERT_HEAD(&env_sched_list,(e),env_sched_link);
 
   return e;
 }
@@ -504,9 +505,9 @@ void env_run(struct Env *e) {
    * function as well.
    */
   /* Exercise 3.8: Your code here. (2/2) */
-  env_pop_tf;
+  env_pop_tf(&curenv->env_tf,curenv->env_asid);
+  
 }
-
 void env_check() {
   struct Env *pe, *pe0, *pe1, *pe2;
   struct Env_list fl;

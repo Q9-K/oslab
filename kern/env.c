@@ -130,7 +130,8 @@ int envid2env(u_int envid, struct Env **penv, int checkperm)
   /* Exercise 4.3: Your code here. (1/2) */
   if (!envid)
   {
-    e = curenv;
+    *penv = curenv;
+    return 0;
   }
   else
   {

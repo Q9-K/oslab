@@ -17,7 +17,9 @@ int main() {
 	}
 	for (;;) {
 		debugf("%x am waiting.....\n", me);
+		// debugf("test\n");
 		i = ipc_recv(0, 0, 0);
+		
 		debugf("%x got %d from %x\n", me, i, who);
 		if (i == 10) {
 			user_panic("%x stop", me);

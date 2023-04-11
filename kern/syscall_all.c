@@ -198,8 +198,8 @@ int sys_mem_map(u_int srcid, u_int srcva, u_int dstid, u_int dstva, u_int perm)
 	/* Step 4: Find the physical page mapped at 'srcva' in the address space of 'srcid'. */
 	/* Return -E_INVAL if 'srcva' is not mapped. */
 	/* Exercise 4.5: Your code here. (4/4) */
-	if (page_lookup(srcenv->env_pgdir, srcva, &pp) == NULL)
-		return -E_INVAL;
+	pp = page_lookup(srcenv->env_pgdir, srcva, 0);
+	if(pp == NULL) return -E_INVAL;
 
 	/* Step 5: Map the physical page at 'dstva' in the address space of 'dstid'. */
 	return page_insert(dstenv->env_pgdir, dstenv->env_asid, pp, dstva, perm);
@@ -350,7 +350,7 @@ void sys_panic(char *msg)
 int sys_ipc_recv(u_int dstva)
 {
 	/* Step 1: Check if 'dstva' is either zero or a legal address. */
-	if (dstva != 0 && is_illegal_va(dstva))
+	if (dstva && is_illegal_va(dstva))
 	{
 		return -E_INVAL;
 	}
@@ -394,7 +394,7 @@ int sys_ipc_try_send(u_int envid, u_int value, u_int srcva, u_int perm)
 
 	/* Step 1: Check if 'srcva' is either zero or a legal address. */
 	/* Exercise 4.8: Your code here. (4/8) */
-	if (!srcva || is_illegal_va(srcva))
+	if (srcva && is_illegal_va(srcva))
 		return -E_INVAL;
 	/* Step 2: Convert 'envid' to 'struct Env *e'. */
 	/* This is the only syscall where the 'envid2env' should be used with 'checkperm' UNSET,
@@ -403,7 +403,7 @@ int sys_ipc_try_send(u_int envid, u_int value, u_int srcva, u_int perm)
 	try(envid2env(envid, &e, 0));
 	/* Step 3: Check if the target is waiting for a message. */
 	/* Exercise 4.8: Your code here. (6/8) */
-	if (!e->env_ipc_recving)
+	if (e->env_ipc_recving == 0)
 		return -E_IPC_NOT_RECV;
 	/* Step 4: Set the target's ipc fields. */
 	e->env_ipc_value = value;
@@ -419,10 +419,10 @@ int sys_ipc_try_send(u_int envid, u_int value, u_int srcva, u_int perm)
 	/* Step 6: If 'srcva' is not zero, map the page at 'srcva' in 'curenv' to 'e->env_ipc_dstva'
 	 * in 'e'. */
 	/* Return -E_INVAL if 'srcva' is not zero and not mapped in 'curenv'. */
-	if (srcva != 0)
+	if (srcva)
 	{
 		/* Exercise 4.8: Your code here. (8/8) */
-		page_insert(e->env_pgdir, e->env_asid, &p, e->env_ipc_dstva, perm);
+		try(page_insert(e->env_pgdir, e->env_asid, p, e->env_ipc_dstva, perm));
 	}
 	return 0;
 }

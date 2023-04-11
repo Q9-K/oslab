@@ -254,8 +254,8 @@ int sys_exofork(void)
 	try(env_alloc(&e, 0));
 	/* Step 2: Copy the current Trapframe below 'KSTACKTOP' to the new env's 'env_tf'. */
 	/* Exercise 4.9: Your code here. (2/4) */
-	// e->env_tf = *((struct Trapframe*)KSTACKTOP-1);
-	e->env_tf = curenv->env_tf;
+	e->env_tf = *((struct Trapframe*)KSTACKTOP-1);
+	// e->env_tf = curenv->env_tf;
 	/* Step 3: Set the new env's 'env_tf.regs[2]' to 0 to indicate the return value in child. */
 	/* Exercise 4.9: Your code here. (3/4) */
 	e->env_tf.regs[2] = 0;
@@ -365,7 +365,7 @@ int sys_ipc_recv(u_int dstva)
 	 * 'env_sched_list'. */
 	/* Exercise 4.8: Your code here. (3/8) */
 	curenv->env_status = ENV_NOT_RUNNABLE;
-	TAILQ_REMOVE(&env_sched_list, (curenv), env_sched_link);
+	// TAILQ_REMOVE(&env_sched_list, (curenv), env_sched_link);
 	/* Step 5: Give up the CPU and block until a message is received. */
 	((struct Trapframe *)KSTACKTOP - 1)->regs[2] = 0;
 	schedule(1);
@@ -422,6 +422,7 @@ int sys_ipc_try_send(u_int envid, u_int value, u_int srcva, u_int perm)
 	if (srcva)
 	{
 		/* Exercise 4.8: Your code here. (8/8) */
+		if(page_lookup(e->env_pgdir,srcva,0)==NULL) return -E_INVAL;
 		try(page_insert(e->env_pgdir, e->env_asid, p, e->env_ipc_dstva, perm));
 	}
 	return 0;

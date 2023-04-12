@@ -150,7 +150,7 @@ int envid2env(u_int envid, struct Env **penv, int checkperm)
    */
   /* Exercise 4.3: Your code here. (2/2) */
   if(checkperm){
-    if(!((e==curenv)||(e->env_parent_id==curenv->env_id))) return -E_BAD_ENV;
+    if(e!=curenv&&e->env_parent_id!=curenv->env_id) return -E_BAD_ENV;
   }
   /* Step 3: Assign 'e' to '*penv'. */
   *penv = e;
@@ -288,6 +288,7 @@ int env_alloc(struct Env **new, u_int parent_id)
   if (asid_alloc(&e->env_asid) < 0)
     return -E_NO_FREE_ENV;
   e->env_id = mkenvid(e);
+  e->env_parent_id = parent_id;
   /* Step 4: Initialize the sp and 'cp0_status' in 'e->env_tf'. */
   // Timer interrupt (STATUS_IM4) will be enabled.
   e->env_tf.cp0_status = STATUS_IM4 | STATUS_KUp | STATUS_IEp;
@@ -297,7 +298,6 @@ int env_alloc(struct Env **new, u_int parent_id)
   /* Step 5: Remove the new Env from env_free_list. */
   /* Exercise 3.4: Your code here. (4/4) */
   LIST_REMOVE(e, env_link);
-
   *new = e;
   return 0;
 }

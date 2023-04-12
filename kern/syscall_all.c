@@ -285,13 +285,20 @@ int sys_set_env_status(u_int envid, u_int status)
 
 	/* Step 1: Check if 'status' is valid. */
 	/* Exercise 4.14: Your code here. (1/3) */
-
+	if(status != ENV_RUNNABLE && status != ENV_NOT_RUNNABLE) return -E_INVAL;
 	/* Step 2: Convert the envid to its corresponding 'struct Env *' using 'envid2env'. */
 	/* Exercise 4.14: Your code here. (2/3) */
-
+	try(envid2env(envid,&env,1));
 	/* Step 3: Update 'env_sched_list' if the 'env_status' of 'env' is being changed. */
 	/* Exercise 4.14: Your code here. (3/3) */
-
+	if(status!=env->env_status){
+		if(env->env_status==ENV_RUNNABLE){
+			TAILQ_REMOVE(&env_sched_list,(env),env_sched_link);
+		}
+		else{
+			TAILQ_INSERT_HEAD(&env_sched_list,(env),env_sched_link);
+		}
+	}
 	/* Step 4: Set the 'env_status' of 'env'. */
 	env->env_status = status;
 	return 0;
@@ -367,8 +374,7 @@ int sys_ipc_recv(u_int dstva)
 	/* Exercise 4.8: Your code here. (3/8) */
 	// if (curenv->env_status == ENV_RUNNABLE)
 	curenv->env_status = ENV_NOT_RUNNABLE;
-	// TAILQ_REMOVE(&env_sched_list, (curenv), env_sched_link);
-	// TAILQ_REMOVE(&env_sched_list, (curenv), env_sched_link);
+	TAILQ_REMOVE(&env_sched_list, (curenv), env_sched_link);
 	/* Step 5: Give up the CPU and block until a message is received. */
 	((struct Trapframe *)KSTACKTOP - 1)->regs[2] = 0;
 	schedule(1);
@@ -425,10 +431,11 @@ int sys_ipc_try_send(u_int envid, u_int value, u_int srcva, u_int perm)
 	if (srcva)
 	{
 		/* Exercise 4.8: Your code here. (8/8) */
-		p = page_lookup(e->env_pgdir, srcva, 0);
-		if (p == NULL)
-			return -E_INVAL;
-		try(page_insert(e->env_pgdir, e->env_asid, p, e->env_ipc_dstva, perm));
+		// p = page_lookup(e->env_pgdir, srcva, 0);
+		// if (p == NULL)
+		// 	return -E_INVAL;
+		// try(page_insert(e->env_pgdir, e->env_asid, p, e->env_ipc_dstva, perm));
+		if(sys_mem_map(curenv->env_id,srcva,e->env_id,e->env_ipc_dstva,e->env_ipc_perm)) return -E_INVAL;
 	}
 	return 0;
 }

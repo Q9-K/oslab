@@ -431,11 +431,11 @@ int sys_ipc_try_send(u_int envid, u_int value, u_int srcva, u_int perm)
 	if (srcva)
 	{
 		/* Exercise 4.8: Your code here. (8/8) */
-		// p = page_lookup(e->env_pgdir, srcva, 0);
-		// if (p == NULL)
-		// 	return -E_INVAL;
-		// try(page_insert(e->env_pgdir, e->env_asid, p, e->env_ipc_dstva, perm));
-		if(sys_mem_map(curenv->env_id,srcva,e->env_id,e->env_ipc_dstva,e->env_ipc_perm)) return -E_INVAL;
+		p = page_lookup(e->env_pgdir, srcva, 0);
+		if (p == NULL)
+			return -E_INVAL;
+		try(page_insert(e->env_pgdir, e->env_asid, p, e->env_ipc_dstva, perm));
+		// if(sys_mem_map(curenv->env_id,srcva,e->env_id,e->env_ipc_dstva,e->env_ipc_perm)) return -E_INVAL;
 	}
 	return 0;
 }

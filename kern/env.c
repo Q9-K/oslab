@@ -139,6 +139,7 @@ int envid2env(u_int envid, struct Env **penv, int checkperm)
   }
   if (e->env_status == ENV_FREE || e->env_id != envid)
   {
+    *penv = NULL;
     return -E_BAD_ENV;
   }
 
@@ -150,7 +151,10 @@ int envid2env(u_int envid, struct Env **penv, int checkperm)
    */
   /* Exercise 4.3: Your code here. (2/2) */
   if(checkperm){
-    if(e!=curenv&&e->env_parent_id!=curenv->env_id) return -E_BAD_ENV;
+    if((e!=curenv)&&(e->env_parent_id!=curenv->env_id)){
+      *penv = NULL;
+     return -E_BAD_ENV;
+    }
   }
   /* Step 3: Assign 'e' to '*penv'. */
   *penv = e;
@@ -265,7 +269,10 @@ int env_alloc(struct Env **new, u_int parent_id)
   /* Step 1: Get a free Env from 'env_free_list' */
   /* Exercise 3.4: Your code here. (1/4) */
   if (LIST_EMPTY(&env_free_list))
+  {
+    *new = NULL;
     return -E_NO_FREE_ENV;
+  }
   e = LIST_FIRST(&env_free_list);
 
   /* Step 2: Call a 'env_setup_vm' to initialize the user address space for this
@@ -324,8 +331,7 @@ static int load_icode_mapper(void *data, u_long va, size_t offset, u_int perm,
 
   /* Step 1: Allocate a page with 'page_alloc'. */
   /* Exercise 3.5: Your code here. (1/2) */
-  if (page_alloc(&p) < 0)
-    return -E_NO_MEM;
+  try(page_alloc(&p));
 
   /* Step 2: If 'src' is not NULL, copy the 'len' bytes started at 'src' into
    * 'offset' at this page. */

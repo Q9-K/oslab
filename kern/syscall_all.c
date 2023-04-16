@@ -104,10 +104,10 @@ int sys_set_tlb_mod_entry(u_int envid, u_int func)
 
 	/* Step 1: Convert the envid to its corresponding 'struct Env *' using 'envid2env'. */
 	/* Exercise 4.12: Your code here. (1/2) */
-
+	try(envid2env(envid,&env,1));
 	/* Step 2: Set its 'env_user_tlb_mod_entry' to 'func'. */
 	/* Exercise 4.12: Your code here. (2/2) */
-
+	env->env_user_tlb_mod_entry = func;
 	return 0;
 }
 
@@ -296,7 +296,7 @@ int sys_set_env_status(u_int envid, u_int status)
 			TAILQ_REMOVE(&env_sched_list,(env),env_sched_link);
 		}
 		else{
-			TAILQ_INSERT_HEAD(&env_sched_list,(env),env_sched_link);
+			TAILQ_INSERT_TAIL(&env_sched_list,(env),env_sched_link);
 		}
 	}
 	/* Step 4: Set the 'env_status' of 'env'. */
@@ -364,7 +364,7 @@ int sys_ipc_recv(u_int dstva)
 	}
 
 	/* Step 2: Set 'curenv->env_ipc_recving' to 1. */
-	/* Exercise 4.8: Your code here. (1/8) */
+	/* Exercise : Your code here. (1/8) */
 	curenv->env_ipc_recving = 1;
 	/* Step 3: Set the value of 'curenv->env_ipc_dstva'. */
 	/* Exercise 4.8: Your code here. (2/8) */

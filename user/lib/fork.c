@@ -153,6 +153,5 @@ int fork(void)
 	/* Exercise 4.15: Your code here. (2/2) */
 	syscall_set_tlb_mod_entry(child, cow_entry);
 	syscall_set_env_status(child, ENV_RUNNABLE);
-	debugf("fork:%d\n",child);
 	return child;
 }

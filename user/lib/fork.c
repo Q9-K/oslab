@@ -35,11 +35,11 @@ static void __attribute__((noreturn)) cow_entry(struct Trapframe *tf)
 	perm |= PTE_D;
 	/* Step 3: Allocate a new page at 'UCOW'. */
 	/* Exercise 4.13: Your code here. (3/6) */
-	syscall_mem_alloc(0, UCOW, perm);
+	try(syscall_mem_alloc(0, UCOW, perm));
 	/* Step 4: Copy the content of the faulting page at 'va' to 'UCOW'. */
 	/* Hint: 'va' may not be aligned to a page! */
 	/* Exercise 4.13: Your code here. (4/6) */
-	memcpy(ROUNDDOWN(va, BY2PG), UCOW, BY2PG);
+	memcpy(UCOW, ROUNDDOWN(va, BY2PG), BY2PG);
 	// Step 5: Map the page at 'UCOW' to 'va' with the new 'perm'.
 	/* Exercise 4.13: Your code here. (5/6) */
 	syscall_mem_map(0, UCOW, 0, va, perm);
@@ -99,7 +99,6 @@ static void duppage(u_int envid, u_int vpn)
 	syscall_mem_map(0, addr, envid, addr, perm);
 	if (flag)
 	{
-		debugf("0x%x\n",addr);
 		syscall_mem_map(0, addr, 0, addr, perm);
 	}
 }
@@ -154,5 +153,6 @@ int fork(void)
 	/* Exercise 4.15: Your code here. (2/2) */
 	syscall_set_tlb_mod_entry(child, cow_entry);
 	syscall_set_env_status(child, ENV_RUNNABLE);
+	debugf("fork:%d\n",child);
 	return child;
 }

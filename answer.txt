@@ -1,0 +1,78 @@
+init.c:	mips_init() is called
+Memory size: 65536 KiB, number of pages: 16384
+to memory 80430000 for struct Pages.
+pmap.c:	 mips vm init success
+@@@@@send 0 from 800 to 1001
+@@@@1001 am waiting.....
+@@@@800 am waiting.....
+@@@@1001 got 0 from 800
+@@@@@send 1 from 1001 to 800
+@@@@1001 am waiting.....
+@@@@800 got 1 from 1001
+@@@@@send 2 from 800 to 1001
+@@@@800 am waiting.....
+@@@@1001 got 2 from 800
+@@@@@send 3 from 1001 to 800
+@@@@1001 am waiting.....
+@@@@800 got 3 from 1001
+@@@@@send 4 from 800 to 1001
+@@@@800 am waiting.....
+@@@@1001 got 4 from 800
+@@@@@send 5 from 1001 to 800
+@@@@1001 am waiting.....
+@@@@800 got 5 from 1001
+@@@@@send 6 from 800 to 1001
+@@@@800 am waiting.....
+@@@@1001 got 6 from 800
+@@@@@send 7 from 1001 to 800
+@@@@1001 am waiting.....
+@@@@800 got 7 from 1001
+@@@@@send 8 from 800 to 1001
+@@@@800 am waiting.....
+@@@@1001 got 8 from 800
+@@@@@send 9 from 1001 to 800
+@@@@1001 am waiting.....
+@@@@800 got 9 from 1001
+@@@@@send 10 from 800 to 1001
+@@@@ 800 finish test 1
+@@@@father 800 wait for son page
+@@@@1001 got 10 from 800
+@@@@ 1001 finish test 1
+@@@@son tell grandson his envid 1001
+@@@@grandson 1802 waiting for son's envid
+@@@@son 1001 is waiting from grandSon 1802 page
+@@@@grandson 1802 got envid 1001 from son 1001
+@@@@grandson 1802 send Page to son 1001
+@@@@grandson 1802 is waiting ack from son 1001
+@@@@1 2020 lab 4 strong testcase1
+@@@@1 send is 1802 recv is 1001
+@@@@son 1001 send ack to grandson 1802
+@@@@son 1001 wait continue from grandson 1802
+@@@@2 2020 lab 4 strong testcase2
+@@@@2 send is 1001 recv is 1802
+@@@@grandson 1802 send continue to son 1001
+@@@@grandson 1802 wait for father signal
+@@@@son 1001 send Page to father 800
+@@@@son 1001 tell father grandson id 1802
+@@@@father 800 wait for grandson id
+@@@@son 1001 wait for father 800 signal
+@@@@father 800 got grandson id 1802 from son 1001
+@@@@father send signal to son
+@@@@father send signal to grandson
+@@@@I am killing 800
+[00000800] destroying 00000800
+[00000800] free env 00000800
+i am killed ... 
+@@@@3 2020 lab 4 strong testcase3
+@@@@3 send is 800 recv is 1802
+@@@@I am killing 1001
+[00001001] destroying 00001001
+[00001001] free env 00001001
+i am killed ... 
+@@@@4 2020 lab 4 strong testcase4
+@@@@4 send is 800 recv is 1802
+@@@@I am killing 1802
+[00001802] destroying 00001802
+[00001802] free env 00001802
+i am killed ... 
+panic at sched.c:46 (schedule): schedule: no runnable envs

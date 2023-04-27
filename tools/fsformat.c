@@ -214,7 +214,7 @@ struct File *create_file(struct File *dirf) {
 		// directly from 'f_direct'. Otherwise, access the indirect block on 'disk' and get
 		// the 'bno' at the index.
 		/* Exercise 5.5: Your code here. (1/3) */
-
+		
 		// Get the directory block using the block number.
 		struct File *blk = (struct File *)(disk[bno].data);
 
@@ -230,7 +230,7 @@ struct File *create_file(struct File *dirf) {
 	// Step 2: If no unused file is found, allocate a new block using 'make_link_block' function
 	// and return a pointer to the new block on 'disk'.
 	/* Exercise 5.5: Your code here. (3/3) */
-
+	make_link_block(dirf,nblk);
 	return NULL;
 }
 

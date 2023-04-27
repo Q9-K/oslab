@@ -104,7 +104,7 @@ int sys_set_tlb_mod_entry(u_int envid, u_int func)
 
 	/* Step 1: Convert the envid to its corresponding 'struct Env *' using 'envid2env'. */
 	/* Exercise 4.12: Your code here. (1/2) */
-	try(envid2env(envid,&env,1));
+	try(envid2env(envid, &env, 1));
 	/* Step 2: Set its 'env_user_tlb_mod_entry' to 'func'. */
 	/* Exercise 4.12: Your code here. (2/2) */
 	env->env_user_tlb_mod_entry = func;
@@ -285,18 +285,22 @@ int sys_set_env_status(u_int envid, u_int status)
 
 	/* Step 1: Check if 'status' is valid. */
 	/* Exercise 4.14: Your code here. (1/3) */
-	if(status != ENV_RUNNABLE && status != ENV_NOT_RUNNABLE) return -E_INVAL;
+	if (status != ENV_RUNNABLE && status != ENV_NOT_RUNNABLE)
+		return -E_INVAL;
 	/* Step 2: Convert the envid to its corresponding 'struct Env *' using 'envid2env'. */
 	/* Exercise 4.14: Your code here. (2/3) */
-	try(envid2env(envid,&env,1));
+	try(envid2env(envid, &env, 1));
 	/* Step 3: Update 'env_sched_list' if the 'env_status' of 'env' is being changed. */
 	/* Exercise 4.14: Your code here. (3/3) */
-	if(status!=env->env_status){
-		if(env->env_status==ENV_RUNNABLE){
-			TAILQ_REMOVE(&env_sched_list,(env),env_sched_link);
+	if (status != env->env_status)
+	{
+		if (env->env_status == ENV_RUNNABLE)
+		{
+			TAILQ_REMOVE(&env_sched_list, (env), env_sched_link);
 		}
-		else{
-			TAILQ_INSERT_TAIL(&env_sched_list,(env),env_sched_link);
+		else
+		{
+			TAILQ_INSERT_TAIL(&env_sched_list, (env), env_sched_link);
 		}
 	}
 	/* Step 4: Set the 'env_status' of 'env'. */
@@ -476,10 +480,29 @@ int sys_cgetc(void)
  *	|    rtc     | 0x15000000 | 0x200  | (dev_rtc.h)
  *	* ---------------------------------*
  */
+int is_illegal_pa_range(u_int pa, int len)
+{
+	if(pa>=0x10000000&&pa+len<0x10000000+0x20){
+		return 0;
+	}
+	else if(pa>=0x13000000&&pa+len<0x13000000+0x4200){
+		return 0;
+	}
+	else if(pa>=0x15000000&&pa+len<0x15000000+0x200){
+		return 0;
+	}
+	return 1;
+}
+
 int sys_write_dev(u_int va, u_int pa, u_int len)
 {
 	/* Exercise 5.1: Your code here. (1/2) */
-
+	// printk("test1\n");
+	if (is_illegal_va_range(va, len) || is_illegal_pa_range(pa, len))
+	{
+		return -E_INVAL;
+	}
+	memcpy(pa + KSEG1, va, len);
 	return 0;
 }
 
@@ -497,7 +520,12 @@ int sys_write_dev(u_int va, u_int pa, u_int len)
 int sys_read_dev(u_int va, u_int pa, u_int len)
 {
 	/* Exercise 5.1: Your code here. (2/2) */
-
+	// printk("test2\n");
+	if (is_illegal_va_range(va, len) || is_illegal_pa_range(pa, len))
+	{
+		return -E_INVAL;
+	}
+	memcpy(va, pa + KSEG1, len);
 	return 0;
 }
 

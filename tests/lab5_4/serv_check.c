@@ -72,6 +72,7 @@ int main() {
 	int k = 0;
 	for (k = next_n; k < sizeof buf; k++) {
 		if ((u_char)buf[k] != 0xfe) {
+			debugf("test:%x, %d, %d\n",0xfe,sizeof buf,k);
 			user_panic("read /newmotd: buffer overflow: %x", (u_char)buf[k]);
 		}
 	}

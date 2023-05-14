@@ -19,7 +19,8 @@ void fs_check() {
 	int r;
 	void *blk;
 	u_int *bits;
-
+	//debug
+	
 	// back up bitmap
 	if ((r = syscall_mem_alloc(0, (void *)UTEMP, PTE_D)) < 0) {
 		user_panic("syscall_mem_alloc: %e", r);

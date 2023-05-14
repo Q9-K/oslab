@@ -173,10 +173,10 @@ void serve_remove(u_int envid, struct Fsreq_remove *rq) {
 	// Step 1: Remove the file specified in 'rq' using 'file_remove' and store its return value.
 	int r;
 	/* Exercise 5.11: Your code here. (1/2) */
-
+	r = file_remove(rq->req_path);
 	// Step 2: Respond the return value to the requester 'envid' using 'ipc_send'.
 	/* Exercise 5.11: Your code here. (2/2) */
-
+	ipc_send(envid,r,0,0);
 }
 
 void serve_dirty(u_int envid, struct Fsreq_dirty *rq) {
@@ -211,6 +211,7 @@ void serve(void) {
 
 		// All requests must contain an argument page
 		if (!(perm & PTE_V)) {
+
 			debugf("Invalid request from %08x: no argument page\n", whom);
 			continue; // just leave it hanging, waiting for the next request.
 		}
@@ -245,6 +246,7 @@ void serve(void) {
 			break;
 
 		default:
+			// debugf("1\n");
 			debugf("Invalid request code %d from %08x\n", whom, req);
 			break;
 		}

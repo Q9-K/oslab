@@ -482,13 +482,13 @@ int sys_cgetc(void)
  */
 int is_illegal_pa_range(u_int pa, int len)
 {
-	if(pa>=0x10000000&&pa+len<0x10000000+0x20){
+	if(pa>=0x10000000&&pa+len<=0x10000000+0x20){
 		return 0;
 	}
-	else if(pa>=0x13000000&&pa+len<0x13000000+0x4200){
+	else if(pa>=0x13000000&&pa+len<=0x13000000+0x4200){
 		return 0;
 	}
-	else if(pa>=0x15000000&&pa+len<0x15000000+0x200){
+	else if(pa>=0x15000000&&pa+len<=0x15000000+0x200){
 		return 0;
 	}
 	return 1;

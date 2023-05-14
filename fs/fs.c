@@ -142,7 +142,7 @@ int map_block(u_int blockno) {
 	// Step 2: Alloc a page in permission 'PTE_D' via syscall.
 	// Hint: Use 'diskaddr' for the virtual address.
 	/* Exercise 5.7: Your code here. (2/5) */
-	return syscall_mem_alloc(curenv->env_id,diskaddr(blockno),PTE_D);
+	return syscall_mem_alloc(0,diskaddr(blockno),PTE_D);
 }
 
 // Overview:
@@ -161,7 +161,7 @@ void unmap_block(u_int blockno) {
 	}
 	// Step 3: Unmap the virtual address via syscall.
 	/* Exercise 5.7: Your code here. (5/5) */
-	syscall_mem_unmap(curenv->env_id,va);
+	try(syscall_mem_unmap(0,va));
 	user_assert(!block_is_mapped(blockno));
 }
 
@@ -188,11 +188,11 @@ void free_block(u_int blockno) {
 	// You can refer to the function 'block_is_free' above.
 	// Step 1: If 'blockno' is invalid (0 or >= the number of blocks in 'super'), return.
 	/* Exercise 5.4: Your code here. (1/2) */
-	if((blockno==0)||(blockno>=super->s_nblocks)) return;
+	if((blockno==0)||(super!=0 && blockno>=super->s_nblocks)) return;
 	// Step 2: Set the flag bit of 'blockno' in 'bitmap'.
 	// Hint: Use bit operations to update the bitmap, such as b[n / W] |= 1 << (n % W).
 	/* Exercise 5.4: Your code here. (2/2) */
-	bitmap[blockno/32] = 1<<(blockno%32);
+	bitmap[blockno / 32] = bitmap[blockno / 32] | (1 << (blockno % 32));
 }
 
 // Overview:
@@ -244,11 +244,11 @@ int alloc_block(void) {
 void read_super(void) {
 	int r;
 	void *blk;
-
 	// Step 1: read super block.
 	if ((r = read_block(1, &blk, 0)) < 0) {
 		user_panic("cannot read superblock: %e", r);
 	}
+	
 
 	super = blk;
 
@@ -491,15 +491,14 @@ int dir_lookup(struct File *dir, char *name, struct File **file) {
 	// Step 1: Calculate the number of blocks in 'dir' via its size.
 	u_int nblock;
 	/* Exercise 5.8: Your code here. (1/3) */
-	nblock = dir->f_size / BY2BLK;
+	nblock = ROUND(dir->f_size, BY2BLK) / BY2BLK;
 	// Step 2: Iterate through all blocks in the directory.
 	for (int i = 0; i < nblock; i++) {
 		// Read the i'th block of 'dir' and get its address in 'blk' using 'file_get_block'.
 		void *blk;
 		/* Exercise 5.8: Your code here. (2/3) */
 		try(file_get_block(dir,i,&blk));
-		u_int isnew;
-		read_block(i,&blk,&isnew);
+
 		struct File *files = (struct File *)blk;
 
 		// Find the target among all 'File's in this block.
@@ -508,14 +507,13 @@ int dir_lookup(struct File *dir, char *name, struct File **file) {
 			// If we find the target file, set '*file' to it and set up its 'f_dir'
 			// field.
 			/* Exercise 5.8: Your code here. (3/3) */
-			if(strcmp(name,f->f_name)==0){
-				*file = f;
+			if(strcmp(f->f_name,name)==0){
 				f->f_dir = dir;
+				*file = f;
 				return 0;
 			}
 		}
 	}
-
 	return -E_NOT_FOUND;
 }
 
@@ -592,7 +590,7 @@ int walk_path(char *path, struct File **pdir, struct File **pfile, char *lastele
 	}
 
 	*pfile = 0;
-
+	
 	// find the target file by name recursively.
 	while (*path != '\0') {
 		dir = file;
@@ -612,6 +610,7 @@ int walk_path(char *path, struct File **pdir, struct File **pfile, char *lastele
 		if (dir->f_type != FTYPE_DIR) {
 			return -E_NOT_FOUND;
 		}
+		
 
 		if ((r = dir_lookup(dir, name, &file)) < 0) {
 			if (r == -E_NOT_FOUND && *path == '\0') {
@@ -625,16 +624,17 @@ int walk_path(char *path, struct File **pdir, struct File **pfile, char *lastele
 
 				*pfile = 0;
 			}
-
 			return r;
 		}
+		
 	}
-
+	
 	if (pdir) {
 		*pdir = dir;
 	}
 
 	*pfile = file;
+	
 	return 0;
 }
 

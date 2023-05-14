@@ -42,16 +42,20 @@ int open(const char *path, int mode) {
 	struct Filefd *ffd;
 	u_int size, fileid;
 	/* Exercise 5.9: Your code here. (3/5) */
-	if(fd2data(fd))
+	va = fd2data(fd);
+	ffd = (struct Filefd*)fd;
+	size = ffd->f_file.f_size;
+	fileid = ffd->f_fileid;
+	
 	// Step 4: Alloc pages and map the file content using 'fsipc_map'.
 	for (int i = 0; i < size; i += BY2PG) {
 		/* Exercise 5.9: Your code here. (4/5) */
-
+		try(fsipc_map(fileid,i,va+i));
 	}
 
 	// Step 5: Return the number of file descriptor using 'fd2num'.
 	/* Exercise 5.9: Your code here. (5/5) */
-
+	return fd2num(fd);
 }
 
 // Overview:
@@ -243,7 +247,7 @@ int remove(const char *path) {
 	// Call fsipc_remove.
 
 	/* Exercise 5.13: Your code here. */
-
+	return fsipc_remove(path);
 }
 
 // Overview:

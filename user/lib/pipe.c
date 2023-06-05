@@ -119,7 +119,7 @@ static int _pipe_is_closed(struct Fd *fd, struct Pipe *p)
 	{
 		fd_ref = pageref(fd);
 		pipe_ref = pageref(p);
-	}while(runs != env->env_runs)
+	}while(runs != env->env_runs);
 
 	return fd_ref == pipe_ref;
 }

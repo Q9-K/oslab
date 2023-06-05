@@ -114,12 +114,11 @@ static int _pipe_is_closed(struct Fd *fd, struct Pipe *p)
 	// Keep retrying until 'env->env_runs' is unchanged before and after
 	// reading the reference counts.
 	/* Exercise 6.1: Your code here. (1/3) */
-	runs = env->env_runs;
-	do
-	{
+	do {
+		runs = env->env_runs;
 		fd_ref = pageref(fd);
 		pipe_ref = pageref(p);
-	}while(runs != env->env_runs);
+	} while(env->env_runs != runs);
 
 	return fd_ref == pipe_ref;
 }
